@@ -1,17 +1,22 @@
 ---
-title: Components
-description: Components
+title: 内容与组件规范
+description: 页面内容结构、交互模式与视觉规范
 ---
 
-## Code Block
+## 内容结构规范
 
-```js
-console.log('Hello World');
-```
+- 每个页面采用「导语 + 结构化区块 + 相关入口」三段结构
+- 每个知识条目包含：时间、地域、证据、结论、争议说明
+- 每条文物数据包含：时期、类型、材质、出土地、研究价值
 
-## Cards
+## 交互规范
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
-</Cards>
+- 筛选统一使用标签按钮，支持「全部」快速复位
+- 搜索组件默认模糊匹配名称、地点、时期
+- 时间轴与地图页支持跨页跳转，形成探索路径
+
+## 视觉规范
+
+- 主色强调证据与行动入口，辅助色承载标签和提示信息
+- 卡片统一圆角、边框、层次间距，移动端优先
+- 文字层级固定为标题、摘要、证据三层，降低阅读成本

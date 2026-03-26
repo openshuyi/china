@@ -3,6 +3,8 @@
 
 # generated content
 .source
+/.spec-workflow/
+
 
 # test & build
 /coverage

@@ -1,3 +1,42 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import 'leaflet/dist/leaflet.css';
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-fd-border);
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-fd-muted-foreground);
+  }
+}
+
+/* Leaflet 自定义样式 */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.custom-marker {
+  transition: all 0.3s ease;
+}
+
+.custom-marker:hover {
+  transform: scale(1.2);
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  min-width: 150px;
+}
