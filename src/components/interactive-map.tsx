@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ArchaeologySite, CulturalCircle, SiteConnection } from '@/lib/history-data';
-import { createCustomIcon, getMapBounds, getPeriodColor } from '@/lib/map-utils';
+import { getMarkerSize, getPeriodColor } from '@/lib/map-utils';
 
 interface InteractiveMapProps {
   sites: ArchaeologySite[];
@@ -14,9 +14,47 @@ interface InteractiveMapProps {
   showHeatmap: boolean;
   showConnections: boolean;
   showCulturalCircles: boolean;
+  showSiteLabels: boolean;
   connectionType: '文化圈' | '时期' | null;
   culturalCircles: CulturalCircle[];
   connections: SiteConnection[];
+}
+
+function createCustomIcon(
+  period: string,
+  importance: '普通' | '重要' | '核心',
+  isSelected: boolean = false
+): L.DivIcon {
+  const size = getMarkerSize(importance);
+  const color = getPeriodColor(period);
+  const scale = isSelected ? 1.3 : 1;
+  const actualSize = size * scale;
+
+  return L.divIcon({
+    className: 'custom-marker',
+    iconSize: [actualSize, actualSize],
+    iconAnchor: [actualSize / 2, actualSize / 2],
+    html: `
+      <div style="
+        width: ${actualSize}px;
+        height: ${actualSize}px;
+        background-color: ${color};
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3), ${isSelected ? `0 0 0 4px ${color}40` : ''};
+        transition: all 0.3s ease;
+        cursor: pointer;
+      "></div>
+    `,
+  });
+}
+
+function getMapBounds(sites: ArchaeologySite[]): L.LatLngBounds {
+  const bounds = L.latLngBounds([]);
+  sites.forEach((site) => {
+    bounds.extend([site.latitude, site.longitude]);
+  });
+  return bounds;
 }
 
 // 地图边界控制组件
@@ -25,8 +63,8 @@ function MapBounds({ sites }: { sites: ArchaeologySite[] }) {
 
   useEffect(() => {
     if (sites.length > 0) {
-    const bounds = getMapBounds(sites);
-    map.fitBounds(bounds, { padding: [50, 50] });
+      const bounds = getMapBounds(sites);
+      map.fitBounds(bounds, { padding: [50, 50] });
     }
   }, [sites, map]);
 
@@ -40,6 +78,7 @@ export function InteractiveMap({
   showHeatmap,
   showConnections,
   showCulturalCircles,
+  showSiteLabels,
   connectionType,
   culturalCircles,
   connections,
@@ -148,6 +187,16 @@ export function InteractiveMap({
                 click: () => onSiteSelect(site),
               }}
             >
+              {showSiteLabels && (
+                <Tooltip
+                  permanent
+                  direction="top"
+                  offset={[0, -10]}
+                  className="!bg-fd-card/90 !border-fd-border/60 !text-fd-foreground !font-medium !px-2 !py-0.5 !rounded-md !shadow-sm"
+                >
+                  {site.name}
+                </Tooltip>
+              )}
               <Popup>
                 <div className="text-sm max-w-xs">
                   <div className="flex items-center gap-2 mb-2">

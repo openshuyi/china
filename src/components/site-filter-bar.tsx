@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import type { ArchaeologySite } from '@/lib/history-data';
-import { getRegions, getPeriods, getCulturalCircles } from '@/lib/map-utils';
+import { getRegions, getPeriods } from '@/lib/map-utils';
 
 interface SiteFilterBarProps {
   sites: ArchaeologySite[];
@@ -16,10 +16,12 @@ interface SiteFilterBarProps {
   showHeatmap: boolean;
   showConnections: boolean;
   showCulturalCircles: boolean;
+  showSiteLabels: boolean;
   connectionType: '文化圈' | '时期' | null;
   onHeatmapToggle: (show: boolean) => void;
   onConnectionsToggle: (show: boolean) => void;
   onCulturalCirclesToggle: (show: boolean) => void;
+  onSiteLabelsToggle: (show: boolean) => void;
   onConnectionTypeChange: (type: '文化圈' | '时期' | null) => void;
 }
 
@@ -33,10 +35,12 @@ export function SiteFilterBar({
   showHeatmap,
   showConnections,
   showCulturalCircles,
+  showSiteLabels,
   connectionType,
   onHeatmapToggle,
   onConnectionsToggle,
   onCulturalCirclesToggle,
+  onSiteLabelsToggle,
   onConnectionTypeChange,
 }: SiteFilterBarProps) {
   const regions = useMemo(() => getRegions(sites), [sites]);
@@ -46,7 +50,7 @@ export function SiteFilterBar({
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="sticky top-16 z-30 space-y-4 rounded-2xl border border-fd-border/50 bg-fd-background/60 p-4 backdrop-blur-xl shadow-lg shadow-black/5"
+      className="space-y-4 rounded-2xl border border-fd-border/50 bg-fd-background/60 p-4 backdrop-blur-xl shadow-lg shadow-black/5"
     >
       {/* 地区筛选 */}
       <div className="space-y-3">
@@ -152,6 +156,15 @@ export function SiteFilterBar({
               className="w-4 h-4 rounded border-fd-border text-fd-primary focus:ring-fd-primary"
             />
             <span className="text-sm text-fd-foreground">连线</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showSiteLabels}
+              onChange={(e) => onSiteLabelsToggle(e.target.checked)}
+              className="w-4 h-4 rounded border-fd-border text-fd-primary focus:ring-fd-primary"
+            />
+            <span className="text-sm text-fd-foreground">遗址名称</span>
           </label>
         </div>
 

@@ -6,7 +6,6 @@ import { clsx } from 'clsx';
 import {
   archaeologySites,
   culturalCircles,
-  siteConnections,
   artifacts,
   timelineEvents,
   type ArchaeologySite,
@@ -15,6 +14,7 @@ import dynamic from 'next/dynamic';
 import { SiteCard } from '@/components/site-card';
 import { SiteFilterBar } from '@/components/site-filter-bar';
 import { SiteDetailModal } from '@/components/site-detail-modal';
+import { generateConnections } from '@/lib/map-utils';
 
 const InteractiveMap = dynamic(
   () => import('@/components/interactive-map').then((mod) => mod.InteractiveMap),
@@ -41,6 +41,7 @@ export function MapExplorer() {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
   const [showCulturalCircles, setShowCulturalCircles] = useState(true);
+  const [showSiteLabels, setShowSiteLabels] = useState(true);
   const [connectionType, setConnectionType] = useState<'文化圈' | '时期' | null>(null);
 
   // 筛选逻辑
@@ -52,84 +53,90 @@ export function MapExplorer() {
     });
   }, [selectedRegion, selectedPeriod]);
 
-  // 视图模式切换
+  const filteredConnections = useMemo(() => {
+    if (!connectionType) return [];
+    return generateConnections(filteredSites, connectionType);
+  }, [filteredSites, connectionType]);
+
   const viewModes: ViewMode[] = ['地图', '列表', '混合'];
 
   return (
-    <section className="space-y-6">
-      {/* 筛选栏 */}
-      <SiteFilterBar
-        sites={archaeologySites}
-        selectedRegion={selectedRegion}
-        selectedPeriod={selectedPeriod}
-        onRegionChange={setSelectedRegion}
-        onPeriodChange={setSelectedPeriod}
-        filteredCount={filteredSites.length}
-        showHeatmap={showHeatmap}
-        showConnections={showConnections}
-        showCulturalCircles={showCulturalCircles}
-        connectionType={connectionType}
-        onHeatmapToggle={setShowHeatmap}
-        onConnectionsToggle={setShowConnections}
-        onCulturalCirclesToggle={setShowCulturalCircles}
-        onConnectionTypeChange={setConnectionType}
-      />
-
-      {/* 视图模式切换 */}
-      <div className="flex items-center justify-center gap-2">
-        {viewModes.map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            onClick={() => setViewMode(mode)}
-            className={clsx(
-              'rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300',
-              viewMode === mode
-                ? 'border-fd-primary bg-fd-primary/10 text-fd-primary'
-                : 'border-fd-border text-fd-muted-foreground hover:border-fd-primary/40 hover:text-fd-foreground'
-            )}
-          >
-            {mode}
-          </button>
-        ))}
-      </div>
-
-      {/* 主内容区 */}
-      {viewMode === '地图' && (
-        <InteractiveMap
-          sites={filteredSites}
-          selectedSite={selectedSite}
-          onSiteSelect={setSelectedSite}
+    <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <aside className="h-fit space-y-4 lg:sticky lg:top-20">
+        <SiteFilterBar
+          sites={archaeologySites}
+          selectedRegion={selectedRegion}
+          selectedPeriod={selectedPeriod}
+          onRegionChange={setSelectedRegion}
+          onPeriodChange={setSelectedPeriod}
+          filteredCount={filteredSites.length}
           showHeatmap={showHeatmap}
           showConnections={showConnections}
           showCulturalCircles={showCulturalCircles}
+          showSiteLabels={showSiteLabels}
           connectionType={connectionType}
-          culturalCircles={culturalCircles}
-          connections={siteConnections}
+          onHeatmapToggle={setShowHeatmap}
+          onConnectionsToggle={setShowConnections}
+          onCulturalCirclesToggle={setShowCulturalCircles}
+          onSiteLabelsToggle={setShowSiteLabels}
+          onConnectionTypeChange={setConnectionType}
         />
-      )}
+      </aside>
 
-      {viewMode === '列表' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="grid gap-4 md:grid-cols-2"
-        >
-          {filteredSites.map((site) => (
-            <SiteCard
-              key={site.id}
-              site={site}
-              isSelected={selectedSite?.id === site.id}
-              onSelect={() => setSelectedSite(site)}
-            />
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {viewModes.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setViewMode(mode)}
+              className={clsx(
+                'rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300',
+                viewMode === mode
+                  ? 'border-fd-primary bg-fd-primary/10 text-fd-primary'
+                  : 'border-fd-border text-fd-muted-foreground hover:border-fd-primary/40 hover:text-fd-foreground'
+              )}
+            >
+              {mode}
+            </button>
           ))}
-        </motion.div>
-      )}
+        </div>
 
-      {viewMode === '混合' && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="lg:col-span-1">
+        {viewMode === '地图' && (
+          <InteractiveMap
+            sites={filteredSites}
+            selectedSite={selectedSite}
+            onSiteSelect={setSelectedSite}
+            showHeatmap={showHeatmap}
+            showConnections={showConnections}
+            showCulturalCircles={showCulturalCircles}
+            showSiteLabels={showSiteLabels}
+            connectionType={connectionType}
+            culturalCircles={culturalCircles}
+            connections={filteredConnections}
+          />
+        )}
+
+        {viewMode === '列表' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="grid gap-4 md:grid-cols-2"
+          >
+            {filteredSites.map((site) => (
+              <SiteCard
+                key={site.id}
+                site={site}
+                isSelected={selectedSite?.id === site.id}
+                onSelect={() => setSelectedSite(site)}
+              />
+            ))}
+          </motion.div>
+        )}
+
+        {viewMode === '混合' && (
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
             <InteractiveMap
               sites={filteredSites}
               selectedSite={selectedSite}
@@ -137,12 +144,11 @@ export function MapExplorer() {
               showHeatmap={showHeatmap}
               showConnections={showConnections}
               showCulturalCircles={showCulturalCircles}
+              showSiteLabels={showSiteLabels}
               connectionType={connectionType}
               culturalCircles={culturalCircles}
-              connections={siteConnections}
+              connections={filteredConnections}
             />
-          </div>
-          <div className="lg:col-span-1">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -159,38 +165,36 @@ export function MapExplorer() {
               ))}
             </motion.div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 空状态 */}
-      {filteredSites.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-20 text-fd-muted-foreground"
-        >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-fd-muted/30 mb-4">
-            <svg
-              aria-hidden="true"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </div>
-          <p className="text-lg">未找到匹配的遗址</p>
-          <p className="text-sm mt-1">请尝试调整筛选条件</p>
-        </motion.div>
-      )}
+        {filteredSites.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20 text-fd-muted-foreground"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-fd-muted/30 mb-4">
+              <svg
+                aria-hidden="true"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <p className="text-lg">未找到匹配的遗址</p>
+            <p className="text-sm mt-1">请尝试调整筛选条件</p>
+          </motion.div>
+        )}
+      </div>
 
-      {/* 遗址详情模态框 */}
       <SiteDetailModal
         site={selectedSite}
         onClose={() => setSelectedSite(null)}

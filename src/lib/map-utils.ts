@@ -1,4 +1,3 @@
-import L from 'leaflet';
 import type { ArchaeologySite, SiteConnection } from './history-data';
 
 // 时期颜色映射
@@ -47,45 +46,6 @@ export function getMarkerSize(importance: '普通' | '重要' | '核心'): numbe
     default:
       return 20;
   }
-}
-
-// 创建自定义标记图标
-export function createCustomIcon(
-  period: string,
-  importance: '普通' | '重要' | '核心',
-  isSelected: boolean = false
-): L.DivIcon {
-  const size = getMarkerSize(importance);
-  const color = getPeriodColor(period);
-  const scale = isSelected ? 1.3 : 1;
-  const actualSize = size * scale;
-
-  return L.divIcon({
-    className: 'custom-marker',
-    iconSize: [actualSize, actualSize],
-    iconAnchor: [actualSize / 2, actualSize / 2],
-    html: `
-      <div style="
-        width: ${actualSize}px;
-        height: ${actualSize}px;
-        background-color: ${color};
-        border: 3px solid white;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3), ${isSelected ? `0 0 0 4px ${color}40` : ''};
-        transition: all 0.3s ease;
-        cursor: pointer;
-      "></div>
-    `,
-  });
-}
-
-// 计算地图边界
-export function getMapBounds(sites: ArchaeologySite[]): L.LatLngBounds {
-  const bounds = L.latLngBounds([]);
-  sites.forEach((site) => {
-    bounds.extend([site.latitude, site.longitude]);
-  });
-  return bounds;
 }
 
 // 生成遗址连线
