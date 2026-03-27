@@ -60,7 +60,7 @@ export function InteractiveMap({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative h-full min-h-[500px] rounded-2xl overflow-hidden border border-fd-border/60 bg-fd-card/80 shadow-xl"
+      className="relative w-full h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-fd-border/60 bg-fd-card/80 shadow-xl"
     >
       <MapContainer
         ref={mapRef}

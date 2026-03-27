@@ -11,10 +11,25 @@ import {
   timelineEvents,
   type ArchaeologySite,
 } from '@/lib/history-data';
-import { InteractiveMap } from '@/components/interactive-map';
+import dynamic from 'next/dynamic';
 import { SiteCard } from '@/components/site-card';
 import { SiteFilterBar } from '@/components/site-filter-bar';
 import { SiteDetailModal } from '@/components/site-detail-modal';
+
+const InteractiveMap = dynamic(
+  () => import('@/components/interactive-map').then((mod) => mod.InteractiveMap),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[500px] lg:h-[600px] rounded-2xl border border-fd-border/60 bg-fd-card/80 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-fd-muted-foreground">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-fd-primary border-t-transparent" />
+          <p>正在加载地图...</p>
+        </div>
+      </div>
+    )
+  }
+);
 
 type ViewMode = '地图' | '列表' | '混合';
 
