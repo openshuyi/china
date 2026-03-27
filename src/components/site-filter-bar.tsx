@@ -50,7 +50,7 @@ export function SiteFilterBar({
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 rounded-2xl border border-fd-border/50 bg-fd-background/60 p-4 backdrop-blur-xl shadow-lg shadow-black/5"
+      className="max-h-[calc(100vh-240px)] overflow-y-auto space-y-4 rounded-2xl border border-fd-border/50 bg-fd-background/60 p-4 backdrop-blur-xl shadow-lg shadow-black/5"
     >
       {/* 地区筛选 */}
       <div className="space-y-3">

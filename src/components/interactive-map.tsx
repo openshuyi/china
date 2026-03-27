@@ -18,6 +18,7 @@ interface InteractiveMapProps {
   connectionType: '文化圈' | '时期' | null;
   culturalCircles: CulturalCircle[];
   connections: SiteConnection[];
+  className?: string;
 }
 
 function createCustomIcon(
@@ -82,6 +83,7 @@ export function InteractiveMap({
   connectionType,
   culturalCircles,
   connections,
+  className,
 }: InteractiveMapProps) {
   const mapRef = useRef<L.Map>(null);
 
@@ -99,7 +101,12 @@ export function InteractiveMap({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative w-full h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-fd-border/60 bg-fd-card/80 shadow-xl"
+      className={[
+        'relative w-full h-[calc(100vh-60px)] rounded-2xl overflow-hidden border border-fd-border/60 bg-fd-card/80',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <MapContainer
         ref={mapRef}
